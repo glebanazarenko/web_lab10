@@ -60,25 +60,29 @@ function test_it( $text ) {
         if( array_key_exists($text[iconv("cp1251", "utf-8", $i)], $cifra) ) // если встретилась цифра
             $cifra_amount++; // увеличиваем счетчик цифр
             // если в тексте встретился пробел или текст закончился
-            if( $text[$i]==' ' || $i==strlen($text)-1 ) { 
-                if( $word ) // если есть текущее слово
-                { 
-                    // если текущее слово сохранено в списке слов
-                    if( isset($words[iconv("cp1251", "utf-8", $word)]) ) 
-                        $words[iconv("cp1251", "utf-8", $word)]++; // увеличиваем число его повторов
-                    else 
-                        $words[iconv("cp1251", "utf-8", $word)]=1; // первый повтор слова
-                } 
-                $word=''; // сбрасываем текущее слово
+        if( $text[$i]==' ' || $i==strlen($text)-1 ) {
+            if($i==strlen($text)-1){
+                $word.=$text[iconv("cp1251", "utf-8", $i)];
+            }
+            if( $word ) // если есть текущее слово
+            {
+                // если текущее слово сохранено в списке слов
+                if( isset($words[iconv("cp1251", "utf-8", $word)]) ) 
+                    $words[iconv("cp1251", "utf-8", $word)]++; // увеличиваем число его повторов
+                else 
+                    $words[iconv("cp1251", "utf-8", $word)]=1; // первый повтор слова
             } 
-            else // если слово продолжается
-                $word.=$text[iconv("cp1251", "utf-8", $i)]; //добавляем в текущее слово новый символ
+            $word=''; // сбрасываем текущее слово
+        } 
+        else // если слово продолжается
+            $word.=$text[iconv("cp1251", "utf-8", $i)]; //добавляем в текущее слово новый символ
                 
     } 
     // выводим количество цифр в тексте
     echo 'Количество цифр: '.$cifra_amount.'<br>'; 
     
     $symbs = test_symbs( $text ) ;
+    ksort($symbs);
     foreach ($symbs as $key => $value) {
         /*
         $value[$key] = iconv("utf-8", "cp1251",$value[$key]);
@@ -87,6 +91,7 @@ function test_it( $text ) {
         echo 'Количество символа "'.$key.'" = '.$value.'<br>';
     }
 
+    ksort($words);
     // выводим количество слов в тексте
     echo 'Количество слов: '.count($words).'<br>';  
     foreach($words as $key => $value) {
