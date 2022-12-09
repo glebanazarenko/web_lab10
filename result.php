@@ -9,10 +9,10 @@
 <body>
     <main>
         <?php
-        if( function_exists('iconv') ){
+        if( function_exists('mb_strtolower') ){
             echo'dg;bknter<br>';
         }
-
+        
 
         if($_POST['comments'] != ''){
             echo'<textarea style="color:red; font-style:italic">'.$_POST['comments'].'</textarea><br>';
@@ -30,18 +30,17 @@
 
 <?php
 function test_it( $text ) { 
-    echo strlen($text);
 
     // количество символов в тексте определяется функцией размера текста
     echo 'Количество символов: '.strlen($text).'<br>'; 
-    preg_match_all( '/[a-zа-яё]/ui', $text, $matches);
+    preg_match_all( '/[a-zа-яё]/ui', iconv("cp1251", "utf-8", $text), $matches);
     echo 'Количество букв: '.count($matches[0]).'<br>';
 
 
-    preg_match_all("/[A-ZА-ЯЁ]/u", $text, $str);
+    preg_match_all("/[A-ZА-ЯЁ]/u", iconv("cp1251", "utf-8", $text), $str);
     echo 'Количество заглавных букв: '.count($str[0]).'<br>';
 
-    echo 'Количество прописных букв: '.count($matches[0]) - count($str[0]).'<br>';
+    echo 'Количество строчных букв: '.count($matches[0]) - count($str[0]).'<br>';
 
     $str = preg_replace("/[^[:punct:]]/", '', $text);
     echo 'Количество знаков препинания: '.strlen($str).'<br>';
@@ -60,8 +59,8 @@ function test_it( $text ) {
         if( array_key_exists($text[iconv("cp1251", "utf-8", $i)], $cifra) ) // если встретилась цифра
             $cifra_amount++; // увеличиваем счетчик цифр
             // если в тексте встретился пробел или текст закончился
-        if( $text[$i]==' ' || $i==strlen($text)-1 ) {
-            if($i==strlen($text)-1){
+        if( $text[iconv("cp1251", "utf-8", $i)]==' ' || $i==strlen($text)-1 ) {
+            if($i==strlen($text)-1 && $text[iconv("cp1251", "utf-8", $i)]!=' '){
                 $word.=$text[iconv("cp1251", "utf-8", $i)];
             }
             if( $word ) // если есть текущее слово
@@ -80,6 +79,8 @@ function test_it( $text ) {
     } 
     // выводим количество цифр в тексте
     echo 'Количество цифр: '.$cifra_amount.'<br>'; 
+    // выводим количество слов в тексте
+    echo 'Количество слов: '.count($words).'<br>'; 
     
     $symbs = test_symbs( $text ) ;
     ksort($symbs);
@@ -92,8 +93,6 @@ function test_it( $text ) {
     }
 
     ksort($words);
-    // выводим количество слов в тексте
-    echo 'Количество слов: '.count($words).'<br>';  
     foreach($words as $key => $value) {
         echo 'Количество слов "'.$key.'" = '.$value.'<br>';
     }
@@ -102,18 +101,23 @@ function test_it( $text ) {
 function test_symbs( $text ) 
 { 
     $symbs=array(); // массив символов текста
-    //$l_text=strtolower($text);
-    
-    $l_text=strtolower($text); // переводим текст в нижний регистр
+    $l_text=strtolower($text);
+    /*
+    $text = iconv("cp1251", "utf-8", $text);
+    $l_text = strtolower($text); // переводим текст в нижний регистр
+    $l_text = strtolower($l_text);
+    echo $l_text;
+    $l_text = iconv("utf-8", "cp1251",$l_text);
+    echo iconv("cp1251", "utf-8", $l_text[8]);
+    */
 
     // последовательно перебираем все символы текста
     for($i=0; $i<strlen($l_text); $i++) { 
-        if( isset($symbs[iconv("cp1251", "utf-8", $l_text[$i])]) ){ // если символ есть в массиве 
-            $symbs[iconv("cp1251", "utf-8", $l_text[$i])]++; // увеличиваем счетчик повторов
-            
+        if( isset($symbs[strtolower(iconv("cp1251", "utf-8", $l_text[$i]))]) ){ // если символ есть в массиве 
+            $symbs[strtolower(iconv("cp1251", "utf-8", $l_text[$i]))]++; // увеличиваем счетчик повторов
         }
         else // иначе
-            $symbs[iconv("cp1251", "utf-8", $l_text[$i])]=1; // добавляем символ в массив
+            $symbs[strtolower(iconv("cp1251", "utf-8", $l_text[$i]))]=1; // добавляем символ в массив
     }
     return  $symbs;// возвращаем массив с числом вхождений символов в тексте
 } 
